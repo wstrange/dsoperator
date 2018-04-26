@@ -8,18 +8,21 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// NewDSSet returns a new DS statefulset. Right now this is just experimental.
-// This is something the operator would automatically create.
+// NewDSSet - create a new statefulset for the directory service
 func NewDSSet(ds *dsv1alpha1.DirectoryService) *appsv1.StatefulSet {
 
 	setName := ds.Spec.StatefulSetName
 
+	labels := map[string]string{
+		"djInstance": ds.Name,
+	}
+
+	podSpec := newPodSpec(ds)
+
 	myset := &appsv1.StatefulSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: setName,
-			Labels: map[string]string{
-				"app": "demo",
-			},
+			Name:   setName,
+			Labels: labels,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(ds, schema.GroupVersionKind{
 					Group:   dsv1alpha1.SchemeGroupVersion.Group,
@@ -32,35 +35,78 @@ func NewDSSet(ds *dsv1alpha1.DirectoryService) *appsv1.StatefulSet {
 			Replicas:    int32Ptr(ds.Spec.Replicas),
 			ServiceName: setName,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": "demo",
-				},
+				MatchLabels: labels,
 			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": "demo",
+			Template: podSpec,
+		},
+	}
+
+	return myset
+}
+
+func newPodSpec(ds *dsv1alpha1.DirectoryService) apiv1.PodTemplateSpec {
+
+	labels := map[string]string{
+		"djInstance": ds.Name,
+	}
+
+	// a := &v1.TCPSocketAction{Port: intstr.IntOrString{IntVal: 8080}}
+
+	// probe := &v1.Probe{
+	// 	Handler: a,
+	// 	//Handler: &v1.TCPSocket{TCPSocketAction: {Port: 8080}},
+	// }
+
+	spec := apiv1.PodTemplateSpec{
+		ObjectMeta: metav1.ObjectMeta{
+			Labels: labels,
+		},
+		Spec: apiv1.PodSpec{
+			InitContainers: []apiv1.Container{
+				{
+					Name:  "setup",
+					Image: ds.Spec.Image,
+					Args:  []string{"setup"},
+					VolumeMounts: []apiv1.VolumeMount{
+						{
+							Name:      "data",
+							MountPath: "/opt/opendj/data",
+						},
 					},
 				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
+			},
+			Containers: []apiv1.Container{
+				{
+					Name:  "dj",
+					Image: ds.Spec.Image,
+					Ports: []apiv1.ContainerPort{
 						{
-							Name:  "web",
-							Image: "nginx:1.12",
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 80,
-								},
-							},
+							Name:          "ldap",
+							Protocol:      apiv1.ProtocolTCP,
+							ContainerPort: 1389,
 						},
+					},
+					Args: []string{"start"},
+					VolumeMounts: []apiv1.VolumeMount{
+						{
+							Name:      "data",
+							MountPath: "/opt/opendj/data",
+						},
+					},
+				},
+			},
+			Volumes: []apiv1.Volume{
+				{
+					Name: "data",
+					VolumeSource: apiv1.VolumeSource{
+						EmptyDir: new(apiv1.EmptyDirVolumeSource),
 					},
 				},
 			},
 		},
 	}
-	return myset
+
+	return spec
 }
 
 // We does the api need a pointer to an int?

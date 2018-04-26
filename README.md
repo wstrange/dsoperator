@@ -1,31 +1,13 @@
-# Notes - WIP 
+# Notes - WIP, super experimental
 
 Experiments with a Kubernetes operator.
 
 
+# Notes / Reference
+
 See:
 
 https://github.com/kubernetes-sigs/kubebuilder 
-
-
-
- go build -a -o controller-manager ./cmd/controller-manager/main.go
-
-GOBIN=$(pwd)/bin go install ./cmd/controller-manager
-
-
-s|github.com/forgerock|github.com/ForgeRock|
-
-
-bin/controller-manager --kubeconfig ~/.kube/config
-
-
-kubectl create -f hack/sample/directoryservice.yaml
-
-
-k describe directoryservice
-
-
 
 http://book-staging.kubebuilder.io/basics/what_is_a_controller.html 
 
