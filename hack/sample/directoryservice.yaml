@@ -1,7 +1,7 @@
 apiVersion: ds.forgerock.com/v1alpha1
 kind: DirectoryService
 metadata:
-  name: directoryservice-example
+  name: ds
 spec:
   basedn: "o=userstore"
   dirManager: "cn=Directory Manager"
@@ -9,4 +9,3 @@ spec:
   image: "forgerock-docker-public.bintray.io/forgerock/opendj:6.0.0"
   replicas: 2
   initLoadURL: "gs://forgerock/ds-0/10muserbackup"
-  statefulSetName: "ds"

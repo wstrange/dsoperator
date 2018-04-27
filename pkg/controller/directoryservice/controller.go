@@ -23,7 +23,7 @@ import (
 )
 
 // statefulset readyReplicas - how many report ready...
-// replicas -total, currentReplicas 
+// replicas -total, currentReplicas
 
 const (
 	// SuccessSynced is used as part of the Event 'reason' when a Foo is synced
@@ -66,22 +66,32 @@ func (bc *DirectoryServiceController) Reconcile(k types.ReconcileKey) error {
 	}
 	log.Printf("got directory service object %s", ds.Name)
 
-	setName := ds.Spec.StatefulSetName
-
-	log.Printf("got set name %s", setName)
-
-	if setName == "" {
-		runtime.HandleError(fmt.Errorf("%s: statefulSet name must be specified", k))
-		return nil
-	}
-
-	statefulSet, err := bc.KubernetesInformers.Apps().V1().StatefulSets().Lister().StatefulSets(ds.Namespace).Get(setName)
+	statefulSet, err := bc.KubernetesInformers.Apps().V1().StatefulSets().Lister().StatefulSets(ds.Namespace).Get(ds.Name)
 
 	if errors.IsNotFound(err) {
-		log.Printf("Creating new statefulset %s", setName)
+		log.Printf("Creating new statefulset %s", ds.Name)
 		statefulSet, err = bc.KubernetesClientSet.AppsV1().StatefulSets(ds.Namespace).Create(NewDSSet(ds))
-
+		// create other objects
+		if err != nil {
+			return err
+		}
 		log.Printf("Created new set %v", statefulSet)
+
+		configMap, err := bc.KubernetesClientSet.CoreV1().ConfigMaps(ds.Namespace).Create(NewDSConfigMap(ds))
+
+		log.Printf("Created configmap %v", configMap)
+
+		if err != nil {
+			return err
+		}
+
+		service, err := bc.KubernetesClientSet.CoreV1().Services(ds.Namespace).Create(NewDSService(ds))
+		log.Printf("Created service %v", service)
+
+		if err != nil {
+			return err
+		}
+
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can

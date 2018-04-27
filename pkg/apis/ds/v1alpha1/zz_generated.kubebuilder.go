@@ -97,9 +97,6 @@ var (
 									Type:   "integer",
 									Format: "int32",
 								},
-								"statefulSetName": v1beta1.JSONSchemaProps{
-									Type: "string",
-								},
 							},
 						},
 						"status": v1beta1.JSONSchemaProps{
