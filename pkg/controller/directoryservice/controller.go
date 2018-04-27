@@ -92,6 +92,13 @@ func (bc *DirectoryServiceController) Reconcile(k types.ReconcileKey) error {
 			return err
 		}
 
+		secrets, err := bc.KubernetesClientSet.CoreV1().Secrets(ds.Namespace).Create(NewDSSecrets(ds))
+		log.Printf("Created secrets %v", secrets)
+
+		if err != nil {
+			return err
+		}
+
 	}
 
 	// If an error occurs during Get/Create, we'll requeue the item so we can

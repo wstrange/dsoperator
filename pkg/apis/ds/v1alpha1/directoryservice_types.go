@@ -17,6 +17,7 @@ type DirectoryServiceSpec struct {
 	Image       string `json:"image"`
 	Replicas    int32  `json:"replicas"`
 	InitLoadURL string `json:"initLoadURL"`
+	VolumeSize: string ,
 }
 
 // DirectoryServiceStatus defines the observed state of DirectoryService

@@ -75,6 +75,8 @@ func newPodSpec(ds *dsv1alpha1.DirectoryService) apiv1.PodTemplateSpec {
 		"instance": ds.Name,
 	}
 
+	secretVolumeName := fmt.Sprintf("%s-secret", ds.Name)
+
 	// a := &v1.TCPSocketAction{Port: intstr.IntOrString{IntVal: 8080}}
 
 	// probe := &v1.Probe{
@@ -92,10 +94,21 @@ func newPodSpec(ds *dsv1alpha1.DirectoryService) apiv1.PodTemplateSpec {
 					Name:  "setup",
 					Image: ds.Spec.Image,
 					Args:  []string{"setup"},
+					EnvFrom: []apiv1.EnvFromSource{
+						{
+							ConfigMapRef: &apiv1.ConfigMapEnvSource{
+								LocalObjectReference: apiv1.LocalObjectReference{Name: ds.Name},
+							},
+						},
+					},
 					VolumeMounts: []apiv1.VolumeMount{
 						{
 							Name:      ds.Name,
 							MountPath: "/opt/opendj/data",
+						},
+						{
+							Name:      secretVolumeName,
+							MountPath: "/var/run/secrets/opendj",
 						},
 					},
 				},
@@ -111,6 +124,13 @@ func newPodSpec(ds *dsv1alpha1.DirectoryService) apiv1.PodTemplateSpec {
 							ContainerPort: 1389,
 						},
 					},
+					EnvFrom: []apiv1.EnvFromSource{
+						{
+							ConfigMapRef: &apiv1.ConfigMapEnvSource{
+								LocalObjectReference: apiv1.LocalObjectReference{Name: ds.Name},
+							},
+						},
+					},
 					Args: []string{"start"},
 					VolumeMounts: []apiv1.VolumeMount{
 						{
@@ -121,6 +141,10 @@ func newPodSpec(ds *dsv1alpha1.DirectoryService) apiv1.PodTemplateSpec {
 							Name:      "logs",
 							MountPath: "/opt/opendj/logs",
 						},
+						{
+							Name:      secretVolumeName,
+							MountPath: "/var/run/secrets/opendj",
+						},
 					},
 				},
 			},
@@ -129,6 +153,14 @@ func newPodSpec(ds *dsv1alpha1.DirectoryService) apiv1.PodTemplateSpec {
 					Name: "logs",
 					VolumeSource: apiv1.VolumeSource{
 						EmptyDir: new(apiv1.EmptyDirVolumeSource),
+					},
+				},
+				{
+					Name: secretVolumeName,
+					VolumeSource: apiv1.VolumeSource{
+						Secret: &apiv1.SecretVolumeSource{
+							SecretName: ds.Name,
+						},
 					},
 				},
 			},
@@ -159,8 +191,7 @@ func NewDSConfigMap(ds *dsv1alpha1.DirectoryService) *apiv1.ConfigMap {
 
 // NewDSService - create the headless service for the instance
 func NewDSService(ds *dsv1alpha1.DirectoryService) *apiv1.Service {
-
-	service := &apiv1.Service{
+	return &apiv1.Service{
 		ObjectMeta: newObjectMeta(ds),
 		Spec: apiv1.ServiceSpec{
 			ClusterIP: "None",
@@ -187,6 +218,15 @@ func NewDSService(ds *dsv1alpha1.DirectoryService) *apiv1.Service {
 			},
 		},
 	}
+}
 
-	return service
+// NewDSSecrets for the instance
+func NewDSSecrets(ds *dsv1alpha1.DirectoryService) *apiv1.Secret {
+	return &apiv1.Secret{
+		ObjectMeta: newObjectMeta(ds),
+		StringData: map[string]string{
+			"dirmanager.pw": ds.Spec.Password,
+			"monitor.pw":    ds.Spec.Password,
+		},
+	}
 }
