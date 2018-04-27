@@ -22,6 +22,9 @@ import (
 	"github.com/ForgeRock/dsoperator/pkg/inject/args"
 )
 
+// statefulset readyReplicas - how many report ready...
+// replicas -total, currentReplicas 
+
 const (
 	// SuccessSynced is used as part of the Event 'reason' when a Foo is synced
 	SuccessSynced = "Synced"
