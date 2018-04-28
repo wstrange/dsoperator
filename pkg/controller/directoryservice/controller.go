@@ -92,12 +92,13 @@ func (bc *DirectoryServiceController) Reconcile(k types.ReconcileKey) error {
 			return err
 		}
 
-		secrets, err := bc.KubernetesClientSet.CoreV1().Secrets(ds.Namespace).Create(NewDSSecrets(ds))
-		log.Printf("Created secrets %v", secrets)
+		// We manually create the secret...
+		// secrets, err := bc.KubernetesClientSet.CoreV1().Secrets(ds.Namespace).Create(NewDSSecrets(ds))
+		// log.Printf("Created secrets %v", secrets)
 
-		if err != nil {
-			return err
-		}
+		// if err != nil {
+		// 	return err
+		// }
 
 	}
 

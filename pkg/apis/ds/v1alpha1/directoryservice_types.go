@@ -11,13 +11,13 @@ import (
 
 // DirectoryServiceSpec defines the desired state of DirectoryService
 type DirectoryServiceSpec struct {
-	BaseDN      string `json:"basedn"`
-	DirManager  string `json:"dirManager"`
-	Password    string `json:"password"`
-	Image       string `json:"image"`
-	Replicas    int32  `json:"replicas"`
-	InitLoadURL string `json:"initLoadURL"`
-	VolumeSize: string ,
+	BaseDN         string `json:"basedn"`
+	DirManager     string `json:"dirManager"`
+	Password       string `json:"password"`
+	Image          string `json:"image"`
+	Replicas       int32  `json:"replicas"`
+	InitLoadURL    string `json:"initLoadURL"`
+	DataVolumeSize string `json:"dataVolumeSize"`
 }
 
 // DirectoryServiceStatus defines the observed state of DirectoryService

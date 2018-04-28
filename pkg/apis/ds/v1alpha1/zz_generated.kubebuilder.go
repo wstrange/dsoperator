@@ -81,6 +81,9 @@ var (
 								"basedn": v1beta1.JSONSchemaProps{
 									Type: "string",
 								},
+								"dataVolumeSize": v1beta1.JSONSchemaProps{
+									Type: "string",
+								},
 								"dirManager": v1beta1.JSONSchemaProps{
 									Type: "string",
 								},

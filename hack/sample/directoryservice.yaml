@@ -9,3 +9,4 @@ spec:
   image: "forgerock-docker-public.bintray.io/forgerock/opendj:6.0.0"
   replicas: 2
   initLoadURL: "gs://forgerock/ds-0/10muserbackup"
+  dataVolumeSize: "5Gi"

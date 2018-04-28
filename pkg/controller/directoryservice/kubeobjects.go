@@ -57,7 +57,7 @@ func NewDSSet(ds *dsv1alpha1.DirectoryService) *appsv1.StatefulSet {
 						AccessModes: []apiv1.PersistentVolumeAccessMode{apiv1.ReadWriteOnce},
 						Resources: apiv1.ResourceRequirements{
 							Requests: apiv1.ResourceList{
-								"storage": resource.MustParse("5Gi"),
+								"storage": resource.MustParse(ds.Spec.DataVolumeSize),
 							},
 						},
 					},
@@ -221,12 +221,14 @@ func NewDSService(ds *dsv1alpha1.DirectoryService) *apiv1.Service {
 }
 
 // NewDSSecrets for the instance
+// TODO: the pkcs12 keystore is hard to create, so right now we manually create the secret using hack/secret.sh
 func NewDSSecrets(ds *dsv1alpha1.DirectoryService) *apiv1.Secret {
 	return &apiv1.Secret{
 		ObjectMeta: newObjectMeta(ds),
 		StringData: map[string]string{
 			"dirmanager.pw": ds.Spec.Password,
 			"monitor.pw":    ds.Spec.Password,
+			"keystore.pin":  "1234567890",
 		},
 	}
 }
