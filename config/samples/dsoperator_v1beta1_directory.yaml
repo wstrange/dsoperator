@@ -1,0 +1,9 @@
+apiVersion: dsoperator.k8s.io/v1beta1
+kind: Directory
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: directory-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -13,13 +13,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
-
-import (
-	"github.com/wstrange/dsoperator/pkg/controller/directory"
-)
-
-func init() {
-	// AddToManagerFuncs is a list of functions to create controllers and add them to a manager.
-	AddToManagerFuncs = append(AddToManagerFuncs, directory.Add)
-}
+// Package v1beta1 contains API Schema definitions for the dsoperator v1beta1 API group
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen=package,register
+// +k8s:conversion-gen=github.com/wstrange/dsoperator/pkg/apis/dsoperator
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=dsoperator.k8s.io
+package v1beta1

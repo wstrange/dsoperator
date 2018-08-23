@@ -13,13 +13,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controller
-
-import (
-	"github.com/wstrange/dsoperator/pkg/controller/directory"
-)
-
-func init() {
-	// AddToManagerFuncs is a list of functions to create controllers and add them to a manager.
-	AddToManagerFuncs = append(AddToManagerFuncs, directory.Add)
-}
+// Package dsoperator contains dsoperator API versions
+package dsoperator

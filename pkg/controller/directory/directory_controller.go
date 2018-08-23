@@ -1,4 +1,17 @@
-// Experimental dsoperator
+/*
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 package directory
 
@@ -7,7 +20,7 @@ import (
 	"log"
 	"reflect"
 
-	dsv1beta1 "github.com/ForgeRock/dsoperator/pkg/apis/ds/v1beta1"
+	dsoperatorv1beta1 "github.com/wstrange/dsoperator/pkg/apis/dsoperator/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -30,7 +43,7 @@ import (
 
 // Add creates a new Directory Controller and adds it to the Manager with default RBAC. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
-// USER ACTION REQUIRED: update cmd/manager/main.go to call this ds.Add(mgr) to install this Controller
+// USER ACTION REQUIRED: update cmd/manager/main.go to call this dsoperator.Add(mgr) to install this Controller
 func Add(mgr manager.Manager) error {
 	return add(mgr, newReconciler(mgr))
 }
@@ -49,7 +62,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to Directory
-	err = c.Watch(&source.Kind{Type: &dsv1beta1.Directory{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(&source.Kind{Type: &dsoperatorv1beta1.Directory{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
 		return err
 	}
@@ -58,7 +71,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Uncomment watch a Deployment created by Directory - change this for objects you create
 	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
-		OwnerType:    &dsv1beta1.Directory{},
+		OwnerType:    &dsoperatorv1beta1.Directory{},
 	})
 	if err != nil {
 		return err
@@ -81,10 +94,10 @@ type ReconcileDirectory struct {
 // a Deployment as an example
 // Automatically generate RBAC rules to allow the Controller to read and write Deployments
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=ds.forgeock.com,resources=directories,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=dsoperator.k8s.io,resources=directories,verbs=get;list;watch;create;update;patch;delete
 func (r *ReconcileDirectory) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	// Fetch the Directory instance
-	instance := &dsv1beta1.Directory{}
+	instance := &dsoperatorv1beta1.Directory{}
 	err := r.Get(context.TODO(), request.NamespacedName, instance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -98,7 +111,6 @@ func (r *ReconcileDirectory) Reconcile(request reconcile.Request) (reconcile.Res
 
 	// TODO(user): Change this to be the object type created by your controller
 	// Define the desired Deployment object
-	x := appsv1.StatefulSet{}
 	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instance.Name + "-deployment",

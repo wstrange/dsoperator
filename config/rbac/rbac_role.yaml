@@ -17,7 +17,7 @@ rules:
   - patch
   - delete
 - apiGroups:
-  - ds.forgeock.com
+  - dsoperator.k8s.io
   resources:
   - directories
   verbs:
