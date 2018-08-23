@@ -1,0 +1,10 @@
+apiVersion: ds.forgeock.com/v1beta1
+kind: Directory
+status: {}
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: directory-sample
+spec:
+  # Add fields here
+  foo: bar
